@@ -706,47 +706,57 @@ AC_DEFUN(AC_LBL_LIBRARY_NET, [
     #
     AC_CHECK_FUNC(getaddrinfo,,
     [
-	#
-	# Not found in the standard system libraries.
-	#
-	# In some versions of Solaris, we need to link with libsocket
-	# and libnsl, so check in libsocket and also link with libnsl
-	# when doing this test.
-	#
-	# These are: illumos, Solaris 9.x, 10.x, 11.x before 11.4.
-	#
-	# Linking with libsocket and libnsl will find all the routines
-	# we need.
-	#
-	AC_CHECK_LIB(socket, getaddrinfo,
-	[
-	    #
-	    # OK, we found it in libsocket.
-	    #
-	    LIBS="-lsocket -lnsl $LIBS"
-	],
-	[
-	    #
-	    # Not found in libsocket; test for it in libnetwork, which
-	    # is where it is in Haiku.
-	    #
-	    # Linking with libnetwork will find all the routines we
-	    # need.
-	    #
-	    AC_CHECK_LIB(network, getaddrinfo,
-	    [
-		#
-		# OK, we found it in libnetwork.
-		#
-		LIBS="-lnetwork $LIBS"
-	    ],
-	    [
-		#
-		# We didn't find it.
-		#
-		AC_MSG_ERROR([getaddrinfo is required, but wasn't found])
-	    ])
-	], -lnsl)
+    #
+    # Not found in the standard system libraries.
+    #
+    # For QNX, Linking with libsocket will find all the routines we need.
+    AC_CHECK_LIB(socket, getifaddrs,
+    [
+        LIBS="-lsocket $LIBS"
+    ],
+    [
+        #
+        # Not found in the standard system libraries.
+        #
+        # In some versions of Solaris, we need to link with libsocket
+        # and libnsl, so check in libsocket and also link with libnsl
+        # when doing this test.
+        #
+        # These are: illumos, Solaris 9.x, 10.x, 11.x before 11.4.
+        #
+        # Linking with libsocket and libnsl will find all the routines
+        # we need.
+        #
+        AC_CHECK_LIB(socket, getaddrinfo,
+        [
+            #
+            # OK, we found it in libsocket.
+            #
+            LIBS="-lsocket -lnsl $LIBS"
+        ],
+        [
+            #
+            # Not found in libsocket; test for it in libnetwork, which
+            # is where it is in Haiku.
+            #
+            # Linking with libnetwork will find all the routines we
+            # need.
+            #
+            AC_CHECK_LIB(network, getaddrinfo,
+            [
+            #
+            # OK, we found it in libnetwork.
+            #
+            LIBS="-lnetwork $LIBS"
+            ],
+            [
+            #
+            # We didn't find it.
+            #
+            AC_MSG_ERROR([getaddrinfo is required, but wasn't found])
+            ])
+        ], -lnsl)
+    ],)
 
 	#
 	# We require a version of recvmsg() that conforms to the Single
